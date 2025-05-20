@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-
 // Orbis Specific Imports
 #include <orbis/Pad.h>
 #include <orbis/UserService.h>
@@ -27,7 +26,7 @@
 
 DECLARE_LOG_CATEGORY(LogFaith);
 
-const char *RedirectURL = "http://192.168.0.14:3551";
+const char *RedirectURL = "https://retrac.site";
 
 
 
@@ -178,8 +177,10 @@ extern "C" {
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Started.", PLUGIN_NAME);
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", PLUGIN_NAME, PLUGIN_VER, __func__);
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", PLUGIN_AUTH);
-        
-        NOTIFY(PS_NOTIFICATION_TEX_ICON_SYSTEM,"Faith Injected!\n"
+
+        char* FaithIconUrl = "https://raw.githubusercontent.com/FortOrbis/Faith/refs/heads/main/Art/Faith.png";
+
+        NOTIFY(FaithIconUrl,                   "Faith Injected!\n"
                                                "Made by Tevtongermany\n"
                                                "Redirecting to:\n"
                                                "%s",RedirectURL);
