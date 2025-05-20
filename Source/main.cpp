@@ -1,7 +1,9 @@
-#include <Common.h>
+// C Libraries 
 #include <stdbool.h>
 #include <string.h>
 
+
+// Orbis Specific Imports
 #include <orbis/Pad.h>
 #include <orbis/UserService.h>
 #include <orbis/SystemService.h>
@@ -12,36 +14,30 @@
 
 // Pyrite Includes
 #include "core.h"
-#include "Logging/public/Log.h"
+#include "Logging/Public/Log.h"
+#include "Kernal/Notification/Public/notification.h"
 
+// Goldhen
+#include <Common.h>
 
 #define PLUGIN_NAME "Faith"
-#define PLUGIN_DESC "Faith is a request Redirector to redirect traffic from sonys scehttp lib to your own custom server "
+#define PLUGIN_DESC "Faith is a request Redirector to redirect traffic from sonys LibSceHttp lib to your own custom server "
 #define PLUGIN_AUTH "Tevtongermany"
-#define PLUGIN_VER 0x100 // 1.00
+#define PLUGIN_VER 0x101 // 1.01
 
 DECLARE_LOG_CATEGORY(LogFaith);
 
-const char *RedirectURL = "https://retrac.site";
+const char *RedirectURL = "http://192.168.0.14:3551";
 
 
-PUBLIC_ATTRIBUTE const char *g_pluginName = PLUGIN_NAME;
-
-
-PUBLIC_ATTRIBUTE const char *g_pluginDesc = PLUGIN_DESC;
-
-
-PUBLIC_ATTRIBUTE const char *g_pluginAuth = PLUGIN_AUTH;
-
-
-PUBLIC_ATTRIBUTE u32 g_pluginVersion = PLUGIN_VER;
 
 // Hook declarations
+
 // Redirect
 HOOK_INIT(sceHttpCreateConnectionWithURL);
 HOOK_INIT(sceHttpCreateRequestWithURL);
 
-// Cert Verify
+// Cert Verify dunno if these actually work but Fortnite used one of them so why not hook all of them
 HOOK_INIT(CERT_validateCertificate);
 HOOK_INIT(CERT_validateCertificateWithConf);
 HOOK_INIT(CA_MGMT_verifyCertWithKeyBlob);
@@ -179,10 +175,16 @@ int32_t sceHttpCreateConnectionWithURL_hook(int32_t templateId, const char *url,
 extern "C" {
     
     PUBLIC_ATTRIBUTE s32 plugin_load(s32 argc, const char* argv[])  {
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Started.", g_pluginName);
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", g_pluginName, g_pluginVersion, __func__);
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", g_pluginAuth);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Started.", PLUGIN_NAME);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", PLUGIN_NAME, PLUGIN_VER, __func__);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", PLUGIN_AUTH);
         
+        NOTIFY(PS_NOTIFICATION_TEX_ICON_SYSTEM,"Faith Injected!\n"
+                                               "Made by Tevtongermany\n"
+                                               "Redirecting to:\n"
+                                               "%s",RedirectURL);
+
+
         LOG(LogFaith,LogVerbosity::Log,"Hooking into Request Functions");
         HOOK32(sceHttpCreateConnectionWithURL);
         HOOK32(sceHttpCreateRequestWithURL);
@@ -203,8 +205,8 @@ extern "C" {
 
     
     PUBLIC_ATTRIBUTE s32 plugin_unload(s32 argc, const char* argv[]) {
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", g_pluginName, g_pluginVersion, __func__);
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Ended.", g_pluginName);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", PLUGIN_NAME, PLUGIN_VER, __func__);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Ended.", PLUGIN_NAME);
 
         UNHOOK(sceHttpCreateConnectionWithURL);
         UNHOOK(sceHttpCreateRequestWithURL);

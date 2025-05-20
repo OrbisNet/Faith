@@ -1,10 +1,10 @@
 # === Configuration Flags ===
-DEBUG_FLAGS := -D__FINAL__=1
+DEBUG_FLAGS := -DDevelopmentBuild=0
 LOG_TYPE    := -D__USE_PRINTF__
 BUILD_TYPE  := _final
 
 ifeq ($(DEBUG),1)
-    DEBUG_FLAGS := -D__FINAL__=0
+    DEBUG_FLAGS := -DDevelopmentBuild=1
     BUILD_TYPE  := _debug
 endif
 
