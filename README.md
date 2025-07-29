@@ -26,7 +26,7 @@ So after you have that installed you would need to actually expose both the tool
 export OO_PS4_TOOLCHAIN=~/ps4jb/PS4Toolchain
 export GOLDHEN_SDK=~/ps4jb/GoldHEN_Plugins_SDK
 ```
-press Ctrl + X then press Y and then enter. run source ~./bashrc to refresh it      
+press `Ctrl + X` then press `Y` and then `enter`. run `source ~./bashrc` to refresh it      
 Now the fun part comes, head into plugin_src/Faith/Source and edit the main.cpp, edit the `RedirectURL` to what ever server you want the requests to go to as an example I choose `http://192.168.14:3551`.    
 After thats done you can finally compile! open your command prompt and type in `make` in the Faith Directory where the Makefile Is located at, After a few seconds it should be done building, all build output is stored in bin/plugins/prx_final/ in the root
 of the folder    

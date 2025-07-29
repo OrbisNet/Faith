@@ -1,10 +1,10 @@
 # === Configuration Flags ===
-DEBUG_FLAGS := -DDevelopmentBuild=0
+DEBUG_FLAGS := -DDebug=0
 LOG_TYPE    := -D__USE_PRINTF__
 BUILD_TYPE  := _final
 
 ifeq ($(DEBUG),1)
-    DEBUG_FLAGS := -DDevelopmentBuild=1
+    DEBUG_FLAGS := -DDebug=1
     BUILD_TYPE  := _debug
 endif
 
@@ -59,9 +59,19 @@ ifeq ($(UNAME_S),Darwin)
     CDIR  := macos
 endif
 
-CFLAGS   := $(FINAL) --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c \
-            $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include \
-            -I$(GH_SDK)/include -I$(INCLUDEDIR) -I$(EXTERNAL_DIR) -I$(COMMON_DIR) $(O_FLAG)
+ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+	CC      := clang
+	CCX     := clang++
+	LD      := ld.lld
+	
+	CDIR    := windows
+endif
+
+CFLAGS := $(FINAL) --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c \
+          $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) \
+          -I$(TOOLCHAIN)/include -I$(TOOLCHAIN)/include/bits \
+          -I$(TOOLCHAIN)/include/sys -I$(TOOLCHAIN)/include/c++/v1 \
+          -I$(GH_SDK)/include -I$(INCLUDEDIR) -I$(EXTERNAL_DIR) -I$(COMMON_DIR) $(O_FLAG)
 
 CXXFLAGS := $(CFLAGS) -isystem $(TOOLCHAIN)/$(INCLUDEDIR)/c++/v1
 

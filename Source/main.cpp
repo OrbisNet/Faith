@@ -26,7 +26,7 @@
 
 DECLARE_LOG_CATEGORY(LogFaith);
 
-const char *RedirectURL = "https://retrac.site";
+const char *RedirectURL = "ENTERURLHERE!!!";
 
 
 
@@ -128,6 +128,7 @@ char *GetUrltoRedirect(const char *url) {
 
 int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const char *url, uint64_t contentLength) {
     char * newRedirectUrl = GetUrltoRedirect(url);
+    LOG(LogFaith,LogVerbosity::Log,"sceHttp::sceHttpCreateRequestWithURL->Url: %s", url);
 
     if (newRedirectUrl) {       
         LOG(LogFaith,LogVerbosity::Log,"Redirecting CreateRequest URL:");
@@ -135,8 +136,7 @@ int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const
         LOG(LogFaith,LogVerbosity::Log,"Redirected: %s", newRedirectUrl);
         
         int32_t result = HOOK_CONTINUE(sceHttpCreateRequestWithURL, 
-            int32_t(*)(int32_t, int32_t, const char *, uint64_t), 
-            conectId, method, newRedirectUrl, contentLength);
+            int32_t(*)(int32_t, int32_t, const char *, uint64_t), conectId, method, newRedirectUrl, contentLength);
         
         free(newRedirectUrl);
         return result;
@@ -149,7 +149,7 @@ int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const
 
 int32_t sceHttpCreateConnectionWithURL_hook(int32_t templateId, const char *url, bool isKeepalive) {
     char * newRedirectUrl = GetUrltoRedirect(url);
-    
+
     if (newRedirectUrl) {
         
         LOG(LogFaith,LogVerbosity::Log,"Redirecting CreateConnection URL:");
@@ -175,18 +175,17 @@ extern "C" {
     
     PUBLIC_ATTRIBUTE s32 plugin_load(s32 argc, const char* argv[])  {
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Started.", PLUGIN_NAME);
-        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] <%s\\Ver.0x%08x> %s", PLUGIN_NAME, PLUGIN_VER, __func__);
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", PLUGIN_AUTH);
 
-        char* FaithIconUrl = "https://raw.githubusercontent.com/FortOrbis/Faith/refs/heads/main/Art/Faith.png";
-
+        char* FaithIconUrl = "https://raw.githubusercontent.com/OrbisNet/Faith/refs/heads/main/Art/Faith.png";
+		
         NOTIFY(FaithIconUrl,                   "Faith Injected!\n"
                                                "Made by Tevtongermany\n"
                                                "Redirecting to:\n"
                                                "%s",RedirectURL);
 
-
         LOG(LogFaith,LogVerbosity::Log,"Hooking into Request Functions");
+		
         HOOK32(sceHttpCreateConnectionWithURL);
         HOOK32(sceHttpCreateRequestWithURL);
 
