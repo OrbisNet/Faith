@@ -126,6 +126,8 @@ char *GetUrltoRedirect(const char *url) {
 
 
 
+
+
 int32_t sceHttpCreateRequestWithURL_hook(int32_t conectId, int32_t method, const char *url, uint64_t contentLength) {
     char * newRedirectUrl = GetUrltoRedirect(url);
     LOG(LogFaith,LogVerbosity::Log,"sceHttp::sceHttpCreateRequestWithURL->Url: %s", url);
@@ -178,6 +180,7 @@ extern "C" {
         LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", PLUGIN_AUTH);
 
         char* FaithIconUrl = "https://raw.githubusercontent.com/OrbisNet/Faith/refs/heads/main/Art/Faith.png";
+        char* RetracIconUrl = "https://tevtongermany.com/static/assets/Retrac.png";
 		
         NOTIFY(FaithIconUrl,                   "Faith Injected!\n"
                                                "Made by Tevtongermany\n"
@@ -225,11 +228,52 @@ extern "C" {
 
     
     WEAK_ATTRIBUTE s32 module_start(s64 argc, const void *args) {
+
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] %s Plugin Started.", PLUGIN_NAME);
+        LOG(LogFaith,LogVerbosity::Log,"[GoldHEN] Plugin Author(s): %s", PLUGIN_AUTH);
+
+        char* FaithIconUrl = "https://raw.githubusercontent.com/OrbisNet/Faith/refs/heads/main/Art/Faith.png";
+        char* RetracIconUrl = "https://tevtongermany.com/static/assets/Retrac.png";
+		
+        NOTIFY(FaithIconUrl,                   "Faith Injected!\n"
+                                               "Made by Tevtongermany\n"
+                                               "Redirecting to:\n"
+                                               "%s",RedirectURL);
+
+        #ifdef CUSTOMTEXT
+        NOTIFY(RetracIconUrl,"Have Fun playing retrac!\n use /external to get your login code\n Your Email is username@re.trac");
+        #endif
+
+        LOG(LogFaith,LogVerbosity::Log,"Hooking into Request Functions");
+		
+        HOOK32(sceHttpCreateConnectionWithURL);
+        HOOK32(sceHttpCreateRequestWithURL);
+
+        LOG(LogFaith,LogVerbosity::Log,"Hooking into Cert validation Functions");
+        HOOK32(CERT_validateCertificate);
+        HOOK32(CERT_validateCertificateWithConf);
+        HOOK32(CA_MGMT_verifyCertWithKeyBlob);
+        HOOK32(CA_MGMT_verifySignature);
+        HOOK32(CERT_verifySignature);
+        HOOK32(RSA_verifySignature);
+        HOOK32(CERT_isRootCertificate);
+        HOOK32(CERT_isRootCertificate2);
         return 0;
     }
 
 
     WEAK_ATTRIBUTE s32 module_stop(s64 argc, const void *args) {
+        UNHOOK(sceHttpCreateConnectionWithURL);
+        UNHOOK(sceHttpCreateRequestWithURL);
+        
+        UNHOOK(CERT_validateCertificate);
+        UNHOOK(CERT_validateCertificateWithConf);
+        UNHOOK(CA_MGMT_verifyCertWithKeyBlob);
+        UNHOOK(CA_MGMT_verifySignature);
+        UNHOOK(CERT_verifySignature);
+        UNHOOK(RSA_verifySignature);
+        UNHOOK(CERT_isRootCertificate);
+        UNHOOK(CERT_isRootCertificate2);
         return 0;
     }
 

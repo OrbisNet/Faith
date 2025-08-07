@@ -1,7 +1,8 @@
 from glob import glob as Glob
 import os
 import sys
-from SCons.Script import DefaultEnvironment, Environment, Default, Builder, Command, Dir, Mkdir
+from SCons.Script import DefaultEnvironment, Environment, Default, Builder, Command, Dir, Mkdir 
+import platform
 
 def GetEnvVar(Name:str) -> str:
     return os.environ.get(Name)
@@ -16,7 +17,7 @@ def create_fself_generator(source, target, env, for_signature):
 TOOLCHAIN = GetEnvVar("OO_PS4_TOOLCHAIN")
 GH_SDK = GetEnvVar("GOLDHEN_SDK")
 PYRITE_SDK = GetEnvVar("PYRITE_SDK")
-
+# Libraries
 Libraries = []
 Libraries.append("-lSceLibcInternal")
 Libraries.append("-lGoldHEN_Hook") 
@@ -27,6 +28,7 @@ Libraries.append("-lSceSsl")
 Libraries.append("-lSceHttp")
 Libraries.append("-lPyrite")
 
+# You probably dont need to touch anything below that
 
 env = Environment(tools=['gcc','g++'], ENV=os.environ)
 
@@ -42,12 +44,31 @@ create_fself_builder = Builder(
 )
 
 env.Append(BUILDERS={'CreateFSelf': create_fself_builder})
+OO_Toolchain_Platform = None
 
 env['MSVC_USE_SCRIPT'] = None
-env.Replace(CC="clang.exe")
-env.Replace(CXX="clang++.exe")
 
-# C Flags
+if platform.system() == "Linux":
+    OO_Toolchain_Platform = "linux"
+    env.Replace(CC="clang")
+    env.Replace(CXX="clang++")
+    env.Replace(LINK="ld.lld")
+
+
+if platform.system() == "Windows":
+    OO_Toolchain_Platform = "windows"
+    env.Replace(CC="clang.exe")
+    env.Replace(CXX="clang++.exe")
+    env.Replace(LINK="ld.lld.exe")
+
+if platform.system() == "Darwin":
+    OO_Toolchain_Platform = "macos"
+    env.Replace(CC="/usr/local/opt/llvm/bin/clang") # Not sure if this is right, dont got a mac to test, Incase I am wrong
+    env.Replace(CXX="/usr/local/opt/llvm/bin/clang++") # Ping me in The discord!
+    env.Replace(LINK="/usr/local/opt/llvm/bin/ld.lld")
+
+
+# C Flags # Add the include of your library here
 env.Append(CFLAGS=["--target=x86_64-pc-freebsd12-elf"])
 env.Append(CFLAGS=["-fPIC"])
 env.Append(CFLAGS=["-funwind-tables"])
@@ -74,7 +95,7 @@ env.Append(LDFLAGS=[f"--script {TOOLCHAIN}/link.x"])
 env.Append(LDFLAGS=["-eh-frame-hdr"])
 env.Append(LDFLAGS=["-e _init"])
 
-# library Imports
+# library Imports # Change this if you want to add new libaries to your project
 env.Append(LDFLAGS=[f"-L{TOOLCHAIN}/lib"])
 env.Append(LDFLAGS=[f"-L{GH_SDK}"])
 env.Append(LDFLAGS=[f"-L{PYRITE_SDK}"])
@@ -95,7 +116,7 @@ output_name = os.path.basename(os.getcwd())
 elf_target = f"{FINALDIR}/{output_name}.elf"
 crt_obj = f"{GH_SDK}/build/crtprx.o"
 
-link_cmd = f"ld.lld {crt_obj} $SOURCES -o $TARGET {' '.join(env['LDFLAGS'])} {' '.join([f'-l{lib[2:]}' for lib in Libraries])}"
+link_cmd = f"{env['LINK']} {crt_obj} $SOURCES -o $TARGET {' '.join(env['LDFLAGS'])} {' '.join([f'-l{lib[2:]}' for lib in Libraries])}"
 
 elf_file = env.Command(
     target=elf_target,
@@ -104,7 +125,7 @@ elf_file = env.Command(
 )
 
 print("Creating PRX...")
-env['CREATE_FSELF'] = f"{TOOLCHAIN}/bin/windows/create-fself"  
+env['CREATE_FSELF'] = f"{TOOLCHAIN}/bin/{OO_Toolchain_Platform}/create-fself"  
 
 
 oelf_target = f"{FINALDIR}/{output_name}.oelf"
