@@ -30,7 +30,10 @@ Libraries.append("-lPyrite")
 
 # You probably dont need to touch anything below that
 
-env = Environment(tools=['gcc','g++'], ENV=os.environ)
+vars = Variables()
+vars.Add(BoolVariable('buildwithcustomtext', 'Build with Custom Text', False))
+
+env = Environment(tools=['gcc','g++'], ENV=os.environ,variables=vars)
 
 INTDIR = "build"
 FINALDIR = "build/prx"
@@ -80,6 +83,8 @@ env.Append(CFLAGS=[f"-I{TOOLCHAIN}/include"])
 env.Append(CFLAGS=[f"-I{TOOLCHAIN}/include/bits"])
 env.Append(CFLAGS=[f"-I{TOOLCHAIN}/include/sys"])
 env.Append(CFLAGS=[f"-I{GH_SDK}/include"])
+
+
 
 # Pyrite
 env.Append(CFLAGS=[f"-I{PYRITE_SDK}/core"])
