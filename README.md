@@ -1,6 +1,7 @@
 # Faith
-Faith is a request redirector that reroutes traffic from Sony's scehttp lib to your own custom server.
-
+Faith is a request redirector that reroutes traffic from Sony's scehttp lib to your own custom server.  
+OUTDATED!!!!  
+Gonna post another tutorial later 
 ## How Does This Work?
 We hook into sceHttpCreateConnectionWithURL and sceHttpCreateRequestWithURL, then modify the URL passed to those functions with a custom one.
 
